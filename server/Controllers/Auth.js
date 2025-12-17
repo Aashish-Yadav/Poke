@@ -53,3 +53,20 @@ exports.SignIn = async (req, res) =>{
         res.status(500).json({status:500, message:"error in signin"})
     }
 }
+
+exports.getAllUsers = async (req, res) => {
+    const keyword = req.query.search ? {
+        $or:[
+            {name:{$regex: req.query.search, $options:"i"}},
+            {email:{$regex: req.query.search, $options:"i"}}
+        ]
+    } : {};
+        try {
+            const users = await user.find(keyword).find({_id:{$ne: req.user._id}});
+            return res.status(200).json({status:200, users});
+            console.log("users", users);
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({status:500, message:"error in fetching users"})
+        }
+}
